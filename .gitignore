@@ -1,0 +1,23 @@
+# Node (Frontend)
+node_modules/
+dist/
+.env
+
+# Python (Backend)
+__pycache__/
+*.py[cod]
+venv/
+.env
+instance/
+.pytest_cache/
+
+# Database & Models
+*.db
+*.sqlite3
+server/history.json
+# Note: Keep model.pkl commented out if you WANT to upload the trained brain.
+# If it's too huge (>100MB), uncomment the line below to ignore it.
+# *.pkl
+
+# OS Files
+.DS_Store
