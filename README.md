@@ -49,7 +49,7 @@ Ensure the following are installed:
 - Python 3.10+
 - Ollama  
   ```bash
-  ollama run llama3.2:1b
+  ```ollama run llama3.2:1b
 
 ### 2. Backend Setup
 cd server
