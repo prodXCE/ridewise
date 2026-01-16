@@ -56,6 +56,8 @@ Ensure the following are installed:
 ```pip install -r requirements.txt
 ```python app.py
 
+---
+
 ### 3. Frontend Setup
 ```cd client
 ```npm install
