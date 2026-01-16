@@ -52,14 +52,14 @@ Ensure the following are installed:
   ```ollama run llama3.2:1b
 
 ### 2. Backend Setup
-cd server
-pip install -r requirements.txt
-python app.py
+```cd server
+```pip install -r requirements.txt
+```python app.py
 
 ### 3. Frontend Setup
-cd client
-npm install
-npm run dev
+```cd client
+```npm install
+```npm run dev
 
 ▶ Usage
 Open the application in your browser:
