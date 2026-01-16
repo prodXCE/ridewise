@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip } from 'react-lea
 import 'leaflet/dist/leaflet.css';
 import { BatteryCharging, Bike } from 'lucide-react';
 
-// Enhanced Data: Mumbai Metro Stations with Bike Counts
 const stations = [
   { id: 1, name: "Versova Metro Stn", lat: 19.1314, lng: 72.8105, capacity: 85, bikes: 12, status: "critical" },
   { id: 2, name: "Andheri Metro (WEH)", lat: 19.1206, lng: 72.8480, capacity: 45, bikes: 8, status: "warning" },

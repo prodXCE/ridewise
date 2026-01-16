@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CreditCard, Lock, CheckCircle2, Bike } from 'lucide-react';
 import Modal from '/src/components/common/Modal';
+
 const PaymentModal = ({ isOpen, onClose, station }) => {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -9,12 +10,10 @@ const PaymentModal = ({ isOpen, onClose, station }) => {
     e.preventDefault();
     setProcessing(true);
 
-    // Simulate Payment Gateway Delay
     setTimeout(() => {
       setProcessing(false);
       setSuccess(true);
 
-      // Auto close after success
       setTimeout(() => {
         setSuccess(false);
         onClose();

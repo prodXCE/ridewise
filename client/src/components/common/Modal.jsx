@@ -4,7 +4,6 @@ import { X } from 'lucide-react';
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
-  // Prevent background scrolling
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => document.body.style.overflow = 'unset';

@@ -7,11 +7,9 @@ const Predict = () => {
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // File Upload State
   const [file, setFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('idle'); // idle, uploading, success, error
 
-  // Manual Form Inputs
   const [inputs, setInputs] = useState({
     date: '2026-05-01',
     hour: 17,
@@ -39,11 +37,9 @@ const Predict = () => {
     setLoading(true);
     setUploadStatus('uploading');
 
-    // Simulate PDF Parsing & Batch Prediction
     setTimeout(() => {
       setLoading(false);
       setUploadStatus('success');
-      // Mock result for the file
       setPrediction(12845);
     }, 2000);
   };
