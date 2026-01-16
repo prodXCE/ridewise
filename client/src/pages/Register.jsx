@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bike, ArrowRight, Loader2 } from 'lucide-react';
+import { Bike, ArrowRight, Loader2, UserPlus } from 'lucide-react';
 
-const Login = () => {
+const Register = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { register } = useAuth(); // Use the register function from context
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const res = await login(formData.username, formData.password);
+    setError('');
+
+    // Call the registration API
+    const res = await register(formData.username, formData.password);
+
     if (res.success) {
-      navigate('/dashboard');
+      // If successful, go to login page (or directly dashboard if you prefer)
+      navigate('/login');
     } else {
       setError(res.msg);
       setLoading(false);
@@ -31,8 +36,8 @@ const Login = () => {
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-white text-center mb-2">Welcome Back</h2>
-        <p className="text-slate-400 text-center mb-8">Sign in to access your fleet dashboard</p>
+        <h2 className="text-2xl font-bold text-white text-center mb-2">Create Account</h2>
+        <p className="text-slate-400 text-center mb-8">Join RideWise to manage your fleet</p>
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm mb-6 text-center">
@@ -66,17 +71,17 @@ const Login = () => {
             disabled={loading}
             className="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2"
           >
-            {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Sign In'}
-            {!loading && <ArrowRight className="h-4 w-4" />}
+            {loading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Sign Up'}
+            {!loading && <UserPlus className="h-4 w-4" />}
           </button>
         </form>
 
         <p className="text-center text-slate-500 text-sm mt-6">
-          Don't have an account? <Link to="/register" className="text-sky-400 hover:underline">Create one</Link>
+          Already have an account? <Link to="/login" className="text-sky-400 hover:underline">Sign in</Link>
         </p>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Register;
