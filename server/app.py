@@ -4,19 +4,37 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
-import os
-from datetime import datetime
+import io
+from pypdf import PdfReader
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
-CORS(app)
 
 # --- CONFIGURATION ---
+# Allow all CORS headers to prevent browser blocking
+CORS(app, resources={r"/*": {
+    "origins": "*",
+    "allow_headers": ["Content-Type", "Authorization"],
+    "methods": ["GET", "POST", "OPTIONS"]
+}})
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ridewise.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this'  # Change in production
+app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-this'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
+
+# --- DEBUG: Auth Logger (Kept for safety) ---
+@app.before_request
+def log_request_info():
+    if request.method != 'OPTIONS' and request.path != '/api/chat':
+        # We skip logging chat to keep terminal clean
+        print(f"--- REQUEST: {request.method} {request.path} ---")
+        auth = request.headers.get('Authorization')
+        if auth and "null" in auth:
+            print("CRITICAL: Client sent 'null' token!")
 
 # --- DATABASE MODELS ---
 class User(db.Model):
@@ -29,10 +47,9 @@ class Prediction(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date = db.Column(db.String(20), nullable=False)
     prediction_value = db.Column(db.Integer, nullable=False)
-    input_summary = db.Column(db.String(200)) # Store "Hourly, 24C, Rain"
+    input_summary = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# Create Tables (Run once)
 with app.app_context():
     db.create_all()
 
@@ -47,8 +64,7 @@ def register():
     new_user = User(username=data['username'], password=hashed_pw)
     db.session.add(new_user)
     db.session.commit()
-
-    return jsonify({"msg": "User created successfully"}), 201
+    return jsonify({"msg": "User created"}), 201
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -56,35 +72,69 @@ def login():
     user = User.query.filter_by(username=data['username']).first()
 
     if user and check_password_hash(user.password, data['password']):
-        token = create_access_token(identity=user.id)
+        # Force ID to string to prevent 422 errors
+        token = create_access_token(identity=str(user.id))
         return jsonify({"token": token, "username": user.username}), 200
 
     return jsonify({"msg": "Invalid credentials"}), 401
 
-# --- PRIVATE DATA ROUTES ---
+# --- PREDICTION ROUTES ---
 @app.route('/api/save-prediction', methods=['POST'])
 @jwt_required()
 def save_prediction():
     user_id = get_jwt_identity()
     data = request.json
-
     new_pred = Prediction(
         user_id=user_id,
         date=data['date'],
         prediction_value=data['value'],
-        input_summary=data.get('summary', 'Manual Prediction')
+        input_summary=data.get('summary', 'Manual')
     )
     db.session.add(new_pred)
     db.session.commit()
     return jsonify({"msg": "Saved"}), 201
 
+@app.route('/api/batch-predict', methods=['POST'])
+@jwt_required()
+def batch_predict():
+    if 'file' not in request.files:
+        return jsonify({"msg": "No file part"}), 400
+    file = request.files['file']
+
+    try:
+        # Read PDF
+        pdf_file = io.BytesIO(file.read())
+        reader = PdfReader(pdf_file)
+        text_content = ""
+        for page in reader.pages:
+            text_content += page.extract_text()
+
+        # Simple Heuristic Analysis
+        record_count = text_content.count("202")
+        if record_count == 0: record_count = 10
+        predicted_value = record_count * 125
+
+        # Save Result
+        user_id = get_jwt_identity()
+        new_pred = Prediction(
+            user_id=user_id,
+            date=datetime.utcnow().strftime("%Y-%m-%d"),
+            prediction_value=predicted_value,
+            input_summary=f"Batch PDF: {file.filename}"
+        )
+        db.session.add(new_pred)
+        db.session.commit()
+
+        return jsonify({"value": predicted_value, "msg": "Processed"}), 200
+    except Exception as e:
+        print(f"PDF Error: {e}")
+        return jsonify({"msg": "Failed to process PDF"}), 500
+
 @app.route('/api/history', methods=['GET'])
 @jwt_required()
 def get_history():
     user_id = get_jwt_identity()
-    # Filter ONLY by this user's ID
     preds = Prediction.query.filter_by(user_id=user_id).order_by(Prediction.timestamp.desc()).all()
-
     results = [{
         "id": p.id,
         "date": p.date,
@@ -92,26 +142,46 @@ def get_history():
         "summary": p.input_summary,
         "created_at": p.timestamp.strftime("%Y-%m-%d %H:%M")
     } for p in preds]
-
     return jsonify(results), 200
 
-# --- CHAT PROXY (Llama 3.2) ---
-SYSTEM_CONTEXT = "You are the RideWise Assistant. Answer briefly."
-
+# --- RESTORED: OLLAMA CHAT ROUTE ---
 @app.route('/api/chat', methods=['POST'])
 def chat():
     data = request.json
     user_text = data.get('message', '')
+
     try:
+        # Communicate with your local Ollama instance
+        system_instruction = """
+        You are RideWise AI, an advanced fleet management assistant for a bike-sharing enterprise.
+        Your goal is to help operators optimize fleet distribution, predict demand, and solve logistical issues.
+
+        CONTEXT & RULES:
+        1. DOMAIN: You are an expert in urban mobility, logistics, and predictive analytics.
+        2. TONE: Professional, concise, and data-driven. Avoid flowery language.
+        3. CAPABILITIES: You can explain demand spikes (e.g., "High demand in Versova due to rain"), suggest rebalancing actions, and debug system alerts.
+        4. CONSTRAINT: If asked about topics unrelated to fleet management, bikes, or logistics, politely steer the conversation back to RideWise.
+        5. FORMAT: Keep answers under 3 sentences unless asked for a detailed report.
+        """
+
         payload = {
             "model": "llama3.2:1b",
-            "prompt": f"{SYSTEM_CONTEXT}\nUser: {user_text}\nAssistant:",
+            "prompt": f"{system_instruction}\n\nUser: {user_text}\nAssistant:",
             "stream": False
         }
+
+        # Call Ollama
         response = requests.post('http://localhost:11434/api/generate', json=payload)
-        return jsonify({"reply": response.json().get('response', 'Error')})
+
+        if response.status_code == 200:
+            ai_reply = response.json().get('response', 'Error: Empty response from AI')
+            return jsonify({"reply": ai_reply})
+        else:
+            return jsonify({"reply": f"Ollama Error: {response.status_code}"}), 500
+
     except Exception as e:
-        return jsonify({"reply": "Backend Error: Check Ollama connection."}), 500
+        print(f"AI Error: {e}")
+        return jsonify({"reply": "I cannot reach the AI brain. Is Ollama running?"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

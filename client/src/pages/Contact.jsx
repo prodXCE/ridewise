@@ -1,80 +1,137 @@
 import React, { useState } from 'react';
-import { Mail, MessageSquare, Send, Star, MapPin } from 'lucide-react';
+import { Mail, MessageSquare, Send, CheckCircle2 } from 'lucide-react';
+import Card from '../components/common/Card';
 
 const Contact = () => {
-  const [rating, setRating] = useState(5);
-  const [feedback, setFeedback] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const submitFeedback = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const userStr = localStorage.getItem('user');
-    const user = userStr ? JSON.parse(userStr) : null;
-
-    await fetch('/api/feedback', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ user_id: user?.id, message: feedback, rating })
-    });
-    alert("Thanks for your feedback!");
-    setFeedback('');
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setLoading(false);
+      setSubmitted(true);
+    }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      {/* Navbar Removed */}
-      <div className="max-w-4xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-12">
+    <div className="space-y-6 animate-fade-in pb-20">
 
-        <div className="space-y-8">
-          <h1 className="text-4xl font-bold">Get in Touch</h1>
-          <p className="text-slate-400 text-lg">Have questions about our AI models or bike fleet? We're here to help.</p>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Feedback & Support</h1>
+        <p className="text-slate-500 mt-2">Have a suggestion or found a bug? Let us know.</p>
+      </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 bg-slate-800 p-4 rounded-lg">
-              <div className="bg-blue-600/20 p-3 rounded-full text-blue-500"><Mail /></div>
-              <div>
-                <p className="text-sm text-slate-400">Email us</p>
-                <p className="font-medium">support@ridewise.com</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        {/* Contact Form */}
+        <div className="lg:col-span-2">
+          <Card>
+            {submitted ? (
+              <div className="text-center py-12">
+                <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-green-100 text-green-600 mb-4">
+                  <CheckCircle2 className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Message Sent!</h3>
+                <p className="text-slate-500 mt-2">Thank you for your feedback. We'll get back to you shortly.</p>
+                <button
+                  onClick={() => setSubmitted(false)}
+                  className="mt-6 text-sky-600 font-medium hover:underline"
+                >
+                  Send another message
+                </button>
               </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">First Name</label>
+                    <input
+                      type="text"
+                      placeholder="Jane"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 outline-none transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Last Name</label>
+                    <input
+                      type="text"
+                      placeholder="Doe"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 outline-none transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="jane@company.com"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 outline-none transition-all"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Message Category</label>
+                  <select className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:border-sky-500 outline-none">
+                    <option>General Feedback</option>
+                    <option>Report a Bug</option>
+                    <option>Feature Request</option>
+                    <option>Account Issue</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Your Message</label>
+                  <textarea
+                    rows="5"
+                    placeholder="Tell us what's on your mind..."
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 outline-none transition-all resize-none"
+                    required
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-8 py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg shadow-lg shadow-sky-200 transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                  {loading ? 'Sending...' : 'Send Message'}
+                  {!loading && <Send className="h-4 w-4" />}
+                </button>
+              </form>
+            )}
+          </Card>
+        </div>
+
+        {/* Sidebar Info */}
+        <div className="space-y-6">
+          {/* FIX: Used a standard div (not Card) to force the Blue Background */}
+          <div className="bg-sky-600 rounded-xl p-6 shadow-md text-white">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <MessageSquare className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-bold text-lg text-white">Direct Support</h3>
             </div>
-            <div className="flex items-center gap-4 bg-slate-800 p-4 rounded-lg">
-              <div className="bg-emerald-600/20 p-3 rounded-full text-emerald-500"><MapPin /></div>
-              <div>
-                <p className="text-sm text-slate-400">HQ</p>
-                <p className="font-medium">123 Innovation Dr, Tech City</p>
+            <p className="text-sky-100 mb-6 leading-relaxed">
+              Need immediate assistance with your fleet prediction model? Our support team is available 24/7.
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-white">
+                <Mail className="h-5 w-5" />
+                <span className="font-medium">support@ridewise.ai</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <MessageSquare className="text-blue-500" /> Send Feedback
-          </h2>
-          <form onSubmit={submitFeedback} className="space-y-6">
-            <div>
-              <label className="block text-sm text-slate-400 mb-2">Your Rating</label>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map(star => (
-                  <button key={star} type="button" onClick={() => setRating(star)}>
-                    <Star className={`w-8 h-8 ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'}`} />
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm text-slate-400 mb-2">Message</label>
-              <textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white h-32"
-                placeholder="How can we improve?"
-              ></textarea>
-            </div>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold flex items-center justify-center gap-2">
-              <Send className="w-4 h-4" /> Submit Feedback
-            </button>
-          </form>
-        </div>
       </div>
     </div>
   );

@@ -1,14 +1,14 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import Chatbot from '../common/Chatbot'; // <--- Import the Chatbot
+import Chatbot from '../common/Chatbot';
 
 const DashboardLayout = () => {
   return (
-    <div className="min-h-screen w-full bg-slate-950 flex flex-row text-white">
+    <div className="min-h-screen w-full bg-slate-50 flex flex-row text-slate-900 font-sans">
 
       {/* Sidebar */}
-      <div className="fixed top-0 left-0 h-full z-50">
+      <div className="fixed top-0 left-0 h-full z-50 shadow-xl">
         <Sidebar />
       </div>
 
@@ -20,7 +20,7 @@ const DashboardLayout = () => {
       </main>
 
       {/* Global Chatbot Widget */}
-      <Chatbot />  {/* <--- Add this line here */}
+      <Chatbot />
 
     </div>
   );

@@ -11,7 +11,7 @@ const stations = [
   { id: 5, name: "BKC Connector", lat: 19.0600, lng: 72.8700, capacity: 60, bikes: 25, status: "healthy" },
 ];
 
-const StationMap = ({ onReserve }) => { // <--- New Prop
+const StationMap = ({ onReserve }) => {
 
   const getColor = (status) => {
     switch(status) {
@@ -22,7 +22,7 @@ const StationMap = ({ onReserve }) => { // <--- New Prop
   };
 
   return (
-    <div className="h-[600px] w-full rounded-xl overflow-hidden border border-slate-800 shadow-2xl relative z-0">
+    <div className="h-[600px] w-full rounded-xl overflow-hidden border border-slate-200 shadow-xl relative z-0">
       <MapContainer
         center={[19.1060, 72.8600]}
         zoom={12}
@@ -31,7 +31,7 @@ const StationMap = ({ onReserve }) => { // <--- New Prop
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
 
         {stations.map(station => (
@@ -60,7 +60,7 @@ const StationMap = ({ onReserve }) => { // <--- New Prop
                 </div>
 
                 <button
-                  onClick={() => onReserve(station)} // <--- Trigger Modal
+                  onClick={() => onReserve(station)}
                   className="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold rounded-md transition-colors shadow-md"
                 >
                   Reserve Now
