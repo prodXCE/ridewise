@@ -1,18 +1,16 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // <--- Import Hook
+import { useNavigate } from 'react-router-dom';
 import { BarChart3, Calendar, Clock, Activity, ArrowUpRight, TrendingUp, Users } from 'lucide-react';
 import Card from '../components/common/Card';
 
 const Dashboard = () => {
-  const navigate = useNavigate(); // <--- Initialize Hook
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-8 animate-fade-in pb-20">
 
-      {/* Welcome Section */}
       <div className="flex justify-between items-end">
         <div>
-          {/* CHANGED: text-white -> text-slate-900 */}
           <h1 className="text-3xl font-bold text-slate-900">System Overview</h1>
           <p className="text-slate-500 mt-2">Real-time fleet performance and prediction metrics</p>
         </div>
@@ -25,7 +23,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           label="Total Predictions"
@@ -61,12 +58,9 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        {/* Recent Activity Table (Left - Wider) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* CHANGED: Dark bg -> White bg */}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             <div className="p-6 border-b border-slate-200 flex justify-between items-center">
               <h3 className="text-lg font-bold text-slate-900">Recent Forecasts</h3>
@@ -102,14 +96,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions / Tips (Right - Narrower) */}
         <div className="space-y-6">
           <Card className="bg-gradient-to-br from-sky-600 to-indigo-600 border-none text-white">
             <h3 className="text-xl font-bold mb-2">Start New Analysis</h3>
             <p className="text-sky-100 mb-6 text-sm opacity-90">
               Run a new prediction model based on current weather parameters or upload historical data.
             </p>
-            {/* FIXED: Added Navigation Logic */}
             <button
               onClick={() => navigate('/dashboard/predict')}
               className="w-full py-3 bg-white text-indigo-600 font-bold rounded-lg shadow-lg hover:bg-indigo-50 transition-colors"
@@ -136,7 +128,6 @@ const Dashboard = () => {
   );
 };
 
-// Helper Component for the 4 Top Cards (Updated for Light Theme)
 const MetricCard = ({ label, value, icon: Icon, trend, color, bgColor }) => (
   <div className="bg-white border border-slate-200 p-6 rounded-xl flex items-center justify-between hover:border-slate-300 hover:shadow-md transition-all">
     <div>

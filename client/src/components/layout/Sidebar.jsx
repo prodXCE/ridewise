@@ -7,7 +7,6 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const auth = useAuth();
 
-  // Safe checks to prevent crash if AuthContext is null
   const user = auth?.user;
   const logout = auth?.logout || (() => console.log("Logout unavailable"));
 

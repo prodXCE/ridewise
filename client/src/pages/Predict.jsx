@@ -5,16 +5,14 @@ import { useAuth } from '../context/AuthContext';
 
 const Predict = () => {
   const { token } = useAuth();
-  const [mode, setMode] = useState('manual'); // 'manual' or 'upload'
+  const [mode, setMode] = useState('manual');
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // File Upload State
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Manual Form State
   const [inputs, setInputs] = useState({
     date: '2026-05-01', season: '3', hour: '17', weather: '1',
     temp: '24', humidity: '65', wind: '12'
@@ -36,13 +34,12 @@ const Predict = () => {
       let finalResult = 0;
 
       if (mode === 'upload') {
-        // --- UPLOAD MODE ---
         if (!selectedFile) throw new Error("Please select a PDF file first.");
 
         const formData = new FormData();
         formData.append('file', selectedFile);
 
-        const res = await fetch('http://127.0.0.1:5001/api/batch-predict', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/batch-predict`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }, // No Content-Type for FormData!
           body: formData
@@ -53,8 +50,6 @@ const Predict = () => {
         finalResult = data.value;
 
       } else {
-        // --- MANUAL MODE (Existing Logic) ---
-        // Simulate Calculation
         await new Promise(r => setTimeout(r, 800));
         let base = inputs.season === '3' ? 300 : 150;
         if (inputs.weather === '3') base *= 0.4;
@@ -63,8 +58,7 @@ const Predict = () => {
         if ((h >= 8 && h <= 10) || (h >= 17 && h <= 19)) base *= 2.5;
         finalResult = Math.max(0, Math.floor(base));
 
-        // Save Manual Prediction
-        await fetch('http://127.0.0.1:5001/api/save-prediction', {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/save-prediction`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -90,14 +84,12 @@ const Predict = () => {
   return (
     <div className="space-y-8 animate-fade-in pb-20">
 
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Prediction Engine</h1>
           <p className="text-slate-500 mt-2">Forecast fleet demand using manual parameters or historical data files</p>
         </div>
 
-        {/* Toggle Switch */}
         <div className="flex bg-white border border-slate-200 p-1 rounded-lg shadow-sm">
           <button
             onClick={() => { setMode('manual'); setPrediction(null); setError(''); }}
@@ -121,7 +113,6 @@ const Predict = () => {
 
           {mode === 'manual' ? (
             <>
-              {/* Temporal Factors Card */}
               <Card>
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
                   <div className="p-2 bg-sky-50 rounded-lg">
@@ -169,7 +160,6 @@ const Predict = () => {
                 </div>
               </Card>
 
-              {/* Weather Card */}
               <Card>
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
                   <div className="p-2 bg-indigo-50 rounded-lg">
@@ -191,7 +181,6 @@ const Predict = () => {
                     </select>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
-                     {/* Simplified for brevity - reuse your existing inputs here if needed */}
                      <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Temp (°C)</label>
                       <input type="number" value={inputs.temp} onChange={(e) => setInputs({...inputs, temp: e.target.value})} className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-lg font-bold outline-none" />
@@ -209,7 +198,6 @@ const Predict = () => {
               </Card>
             </>
           ) : (
-            // --- UPLOAD UI ---
             <Card className="border-dashed border-2 border-slate-300 bg-slate-50/50 min-h-[400px] flex flex-col items-center justify-center text-center relative">
 
               <input
@@ -255,7 +243,6 @@ const Predict = () => {
             </Card>
           )}
 
-          {/* Action Button */}
           <button
             onClick={handlePredict}
             disabled={loading}
@@ -273,7 +260,6 @@ const Predict = () => {
 
         </div>
 
-        {/* RIGHT COLUMN: Results */}
         <div>
           <div className={`h-full min-h-[300px] rounded-2xl p-8 flex flex-col items-center justify-center text-center border transition-all duration-500 ${prediction !== null ? 'bg-white border-sky-100 shadow-xl shadow-sky-100' : 'bg-slate-100 border-slate-200 border-dashed'}`}>
 

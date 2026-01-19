@@ -23,7 +23,6 @@ const Locations = () => {
 
   const handlePayment = async () => {
     setPaymentProcessing(true);
-    // Simulate Payment Gateway Delay
     setTimeout(async () => {
       const user = JSON.parse(localStorage.getItem('user'));
 
@@ -34,13 +33,13 @@ const Locations = () => {
           user_id: user.id,
           location_id: selectedSpot.id,
           date: bookingDate,
-          amount: selectedSpot.hourly_rate * 24 // Assuming 1 day rental
+          amount: selectedSpot.hourly_rate * 24
         })
       });
 
       if (res.ok) {
         alert("Payment Successful! Bike Booked.");
-        window.location.href = '/dashboard'; // Redirect to see booking
+        window.location.href = '/dashboard';
       }
       setPaymentProcessing(false);
       setShowPayment(false);
@@ -52,9 +51,7 @@ const Locations = () => {
       <div className="p-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 h-[80vh]">
 
-          {/* Mumbai Map */}
           <div className="lg:col-span-2 rounded-xl overflow-hidden border border-slate-700 shadow-2xl relative z-0">
-            {/* Center on Mumbai */}
             <MapContainer center={[19.0760, 72.8777]} zoom={11} style={{ height: '100%', width: '100%' }}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               {spots.map(spot => (
@@ -74,14 +71,12 @@ const Locations = () => {
             </MapContainer>
           </div>
 
-          {/* Booking / Payment Panel */}
           <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <MapPin className="text-blue-500" /> Reserve a Bike
             </h2>
 
             {!showPayment ? (
-              // STEP 1: SELECT SPOT & DATE
               selectedSpot ? (
                 <div className="space-y-6">
                   <div className="bg-slate-700/50 p-4 rounded-lg">
@@ -106,7 +101,6 @@ const Locations = () => {
                 </div>
               )
             ) : (
-              // STEP 2: SIMULATED PAYMENT GATEWAY
               <div className="space-y-6 animate-in slide-in-from-right">
                 <div className="border-b border-slate-700 pb-4">
                   <h3 className="text-lg font-semibold mb-2">Order Summary</h3>

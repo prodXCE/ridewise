@@ -14,16 +14,12 @@ const MapPage = () => {
   return (
     <div className="space-y-6 animate-fade-in pb-20">
 
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          {/* FIXED: text-white -> text-slate-900 */}
           <h1 className="text-3xl font-bold text-slate-900">Live Station Grid</h1>
           <p className="text-slate-500 mt-2">Real-time availability and instant reservation system</p>
         </div>
 
-        {/* Status Legend */}
-        {/* FIXED: Text colors updated for Light Mode */}
         <div className="flex items-center gap-4 bg-white border border-slate-200 px-4 py-2 rounded-lg shadow-sm">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-green-500"></span>
@@ -40,10 +36,8 @@ const MapPage = () => {
         </div>
       </div>
 
-      {/* Map Component */}
       <StationMap onReserve={handleReserve} />
 
-      {/* Payment/Reservation Modal */}
       {selectedStation && (
         <PaymentModal
           isOpen={isModalOpen}

@@ -8,7 +8,6 @@ const History = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fetch Real Data on Mount
   useEffect(() => {
     const fetchHistory = async () => {
       if (!token) {
@@ -17,7 +16,7 @@ const History = () => {
       }
 
       try {
-        const res = await fetch('http://127.0.0.1:5001/api/history', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -42,18 +41,14 @@ const History = () => {
     fetchHistory();
   }, [token]);
 
-  // --- NEW: Export Functionality ---
   const handleExport = () => {
     if (historyData.length === 0) return;
 
-    // 1. Define Headers
     const headers = ["ID", "Date", "Summary", "Projected Demand", "Created At"];
 
-    // 2. Convert Data to CSV String
     const csvContent = [
-      headers.join(","), // Header Row
+      headers.join(","),
       ...historyData.map(row => {
-        // Wrap text in quotes to handle commas safely
         return [
           row.id,
           row.date,
@@ -64,7 +59,6 @@ const History = () => {
       })
     ].join("\n");
 
-    // 3. Create a Blob and Download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -78,7 +72,6 @@ const History = () => {
   return (
     <div className="space-y-6 animate-fade-in pb-20">
 
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Prediction History</h1>
@@ -89,7 +82,6 @@ const History = () => {
             <Filter className="h-4 w-4" /> Filter
           </button>
 
-          {/* UPDATED: Added onClick Handler */}
           <button
             onClick={handleExport}
             disabled={loading || historyData.length === 0}
@@ -100,7 +92,6 @@ const History = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <input
@@ -110,7 +101,6 @@ const History = () => {
         />
       </div>
 
-      {/* Loading State */}
       {loading && (
         <div className="p-12 text-center text-slate-500">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-sky-600" />
@@ -118,7 +108,6 @@ const History = () => {
         </div>
       )}
 
-      {/* Error State */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl flex items-center gap-3">
           <AlertCircle className="h-5 w-5" />
@@ -126,7 +115,6 @@ const History = () => {
         </div>
       )}
 
-      {/* Empty State */}
       {!loading && !error && historyData.length === 0 && (
         <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm">
           <p className="text-slate-900 font-bold text-lg mb-2">No predictions found</p>

@@ -7,7 +7,7 @@ const Register = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth(); // Use the register function from context
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -15,11 +15,9 @@ const Register = () => {
     setLoading(true);
     setError('');
 
-    // Call the registration API
     const res = await register(formData.username, formData.password);
 
     if (res.success) {
-      // If successful, go to login page (or directly dashboard if you prefer)
       navigate('/login');
     } else {
       setError(res.msg);

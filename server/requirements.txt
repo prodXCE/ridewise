@@ -4,5 +4,6 @@ pandas
 scikit-learn
 numpy
 joblib
-google-generativeai
+google-genai
 pypdf
+pyngrok
